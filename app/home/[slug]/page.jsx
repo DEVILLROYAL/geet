@@ -3,21 +3,12 @@
 import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { Music } from "lucide-react";
-import { AudioLines } from 'lucide-react';
-import Router from "next/navigation";
 
 export default function MainPage() {
   const [prompt, setPrompt] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const router = Router;
-
-  const handleHomeClick = () => {
-    router.push('/home');
-  };
- 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
@@ -34,11 +25,12 @@ export default function MainPage() {
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
-      setAudioUrl(data.audioUrl || data.url);
+      setAudioUrl(data.audioUrl || data.url || "");
     } catch (err) {
       console.error(err);
-      alert("Error generating music. Please check backend.");
+      alert("Error generating music — check backend!");
     }
+
     setLoading(false);
   }
 
@@ -48,16 +40,27 @@ export default function MainPage() {
       {/* Header */}
       <header className="fixed w-full z-30 top-0 bg-black/80 backdrop-blur-md text-white">
         <nav className="max-w-7xl mx-auto flex items-center justify-between p-4">
-          <div className="text-2xl flex gap-5 justify-center item-center font-bold"><Music size={30}/>Geet</div>
+          {/* Logo */}
+          <div className="text-2xl font-bold">Geet</div>
+
+          {/* Nav Links */}
           <div className="hidden md:flex space-x-6 font-semibold">
-            <a href="#hero" className="hover:text-indigo-400" onClick={handleHomeClick}>Home</a>
-            <a href="#demo" className="hover:text-indigo-400">Demo</a>
+            <a href="#hero" className="hover:text-indigo-400">Home</a>
             <a href="#create" className="hover:text-indigo-400">Create</a>
           </div>
+
+          {/* Login / Sign Up */}
           <div className="hidden md:flex space-x-4">
-            <button className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-md">Login</button>
-            <button className="px-4 py-2 bg-white text-indigo-900 hover:bg-gray-100 rounded-md">Sign Up</button>
+            <button className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-md">
+              Login
+            </button>
+            <button className="px-4 py-2 bg-white text-indigo-900 hover:bg-gray-100 rounded-md">
+              Sign Up
+            </button>
           </div>
+
+          {/* Mobile Menu icon (optional) */}
+          {/* You can add a hamburger + mobile menu here if needed */}
         </nav>
       </header>
 
@@ -74,77 +77,41 @@ export default function MainPage() {
           className="bg-black/60 p-8 md:p-16 max-w-3xl mx-auto"
           data-aos="fade-up"
         >
-          <h1 className="text-5xl flex justify-center items-center md:text-7xl font-bold mb-4">
-           <span className="text-red-400">G</span>eet
+          <h1 className="text-5xl md:text-7xl font-bold mb-4">
+            Geet — AI Music Generator
           </h1>
-          <h2 className="text-5xl md:text-xxl font-bold mb-4">
-           AI Music Generator
-          </h2>
           <p className="text-lg md:text-xl mb-6">
-            Create original AI-generated music from your ideas.
+            Describe what you want and let AI create original music for you.
           </p>
           <button
             onClick={() => document.getElementById("create")?.scrollIntoView({ behavior: "smooth" })}
             className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-semibold"
           >
-            Try It Now
+            Create Now
           </button>
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section id="demo" className="py-20 bg-gray-100 text-gray-900 px-6">
-        <div className="max-w-4xl mx-auto text-center" data-aos="fade-up">
-          <h2 className="md:text-4xl font-bold flex justify-center text-xl items-center gap-5 mb-6">Hear Geet in Action<AudioLines size={50}/></h2>
-          <p className="text-lg mb-8">
-            Listen to some sample AI-generated music clips below.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg"
-            data-aos="zoom-in"
-          >
-            <h3 className="text-2xl font-semibold mb-4">Sample 1</h3>
-            <audio controls className="w-full">
-              <source src="/demos/sample1.mp3" type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg"
-            data-aos="zoom-in"
-            data-aos-delay="200"
-          >
-            <h3 className="text-2xl font-semibold mb-4">Sample 2</h3>
-            <audio controls className="w-full">
-              <source src="/demos/sample2.mp3" type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Music Create Section */}
+      {/* Main (Prompt & Music Creation) */}
       <section
         id="create"
-        className="py-20 bg-white text-gray-900 px-6"
+        className="py-20 bg-gray-100 text-gray-900 px-6"
         data-aos="fade-up"
       >
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Create Your Music</h2>
 
+          {/* Prompt Input */}
           <div className="flex flex-col gap-4">
             <input
               type="text"
               placeholder="Describe your music..."
-              className="w-full p-3 rounded bg-gray-100 border border-gray-300 focus:outline-none"
+              className="w-full p-3 rounded bg-white border border-gray-300 focus:outline-none"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
 
+            {/* Generate Button */}
             <button
               onClick={generateMusic}
               disabled={loading}
@@ -154,6 +121,7 @@ export default function MainPage() {
             </button>
           </div>
 
+          {/* Audio Player */}
           {audioUrl && (
             <div className="mt-10" data-aos="fade-in">
               <h3 className="text-2xl font-semibold mb-2">Your Track</h3>
