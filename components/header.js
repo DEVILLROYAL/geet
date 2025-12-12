@@ -90,10 +90,10 @@ export function Header() {
               FAQ
             </a>
             <div className="flex flex-col gap-2 pt-2">
-              <Button variant="ghost" className="w-full">
+              <Button className="w-full" onClick={handleAuth}>
                 Sign In
               </Button>
-              <Button className="w-full">Get Started</Button>
+              <Button className="w-full" onClick={handleAuth}>Get Started</Button>
             </div>
           </div>
         </div>
