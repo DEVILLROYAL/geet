@@ -25,6 +25,66 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 
 export default function AuthPage() {
+
+  async function signup() {
+    const res = await fetch("/api/auth/singup", {
+      method: "POST",
+      headers: {
+        "content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+  if (data.error) {
+    alert(data.error);
+    alert("invalid username & password")
+  } else {
+    alert("Signup successful!");
+  }
+}
+
+async function login() {
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+
+  const data = await res.json();
+  const router = useRouter();
+
+  if (data.token) {
+    alert("Login Successful!");
+    router.push('/dashboard');
+  } else {
+    alert(data.error);
+  }
+}
+
+async function loadUser() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/api/auth/me", {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+
+  const data = await res.json();
+  console.log(data.user);
+}
+
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -96,53 +156,17 @@ export default function AuthPage() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!validateForm()) return
-
-    setLoading(true)
-    const supabase = createClient()
-
-    try {
-      if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
-            data: {
-              name: formData.name,
-            },
-          },
-        })
-
-        if (error) throw error
-
-        router.push("/auth/success")
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        })
-
-        if (error) throw error
-
-        router.push("/dashboard")
-      }
-    } catch (error) {
-      setErrors({ submit: error.message })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleSocialLogin = async (provider) => {
-    const supabase = createClient('https://zotdiogdangvxpckdpyn.supabase.co')
-
-    setErrors({
-      submit: `${provider} login needs to be configured in your Supabase dashboard. Please use email/password for now.`,
-    })
-  }
+    (e).preventDefault();
+    
+    const res = await fetch("/api/login",{
+      method: "POST",
+      headers:{
+        "content-type": "application/json",
+        body:JSON.stringify,
+      },
+      body:{ email, password },
+    });
+  };
 
   const getPasswordStrengthColor = () => {
     if (passwordStrength <= 1) return "bg-destructive"
@@ -214,7 +238,7 @@ export default function AuthPage() {
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={login} className="space-y-4">
             {isSignUp && (
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
